@@ -26,6 +26,8 @@ Go 即时模式行为原语 · 零额外运行时依赖 · 公开 API 零侵入 
 - **一维拖拽与吸附（`TrackDrag` / `SwitchTrack`）**：基于 `ui.Local` 封装拖拽阈值判定、指针跟随、边界钳制与松手帧调度（`c.After`），搭配 `ui.SwitchBase` 保留原生开关语义与键盘操作。
 - **分段控制行为（`SegmentedTrack` / `SegmentedGroup`）**：`SegmentedTrack` 面向连续滑块/液态玻璃透镜式分段控件，内置拖拽吸附、点击选段、`Left`/`Right`（自动适配 RTL）、`Home`/`End` 与 `Label`/`Value` 语义；`SegmentedGroup` 封装 `ui.SegmentedBase`，提供预命名离散分段。
 - **无样式浮动工具栏（`Toolbar` / `ToolbarParts`）**：基于 `RoleToolbar` + `FocusGroup` 提供单次 Tab 进入与方向键漫游，遵循 MyGo `*Parts` 惯例先样式化 `tb.Root` 再构建子项，内置 `Button`、`Toggle`（`RoleToggleButton` + `Checked`）与 `RadioItem`（`RoleRadio` + `Checked`，适合色块/线宽选择器）。
+- **侧栏/顶部导航列表（`NavList` / `NavListParts`）**：基于 `RoleTabList` + `RoleTab` 封装垂直/水平（含 RTL 镜像）方向键与 `Home`/`End` 切换，在文本输入聚焦时自动让出方向键，支持不回绕夹紧或循环切换，适合自定义 Liquid Glass 侧栏导航。
+- **自定义单选组（`RadioGroup` / `RadioGroupParts`）**：基于 `RoleRadioGroup` + `FocusGroup` + `RoleRadio` 封装色块、主题圆点与模板卡片等任意自定义单选组，保留完整键盘漫游与选中项优先聚焦。
 - **视口安全定位与轻关闭（`PlaceFloating` / `ShouldDismiss`）**：支持首选方向溢出翻转、锚点内回退、边缘钳制与 RTL 对齐镜像，以及统一的 `Escape` / 外部点击关闭判定。
 
 ### 2. 无障碍与 Agent 可达性测试（`uitest`）
@@ -52,6 +54,8 @@ Go 即时模式行为原语 · 零额外运行时依赖 · 公开 API 零侵入 
 | `behaviors.SegmentedGroup(c, &selected, opts)` | 封装 `ui.SegmentedBase` 的离散自定义分段控件 |
 | `behaviors.Toolbar(c, opts)` | 无样式 `RoleToolbar` + `FocusGroup` 漫游焦点容器（返回 `ToolbarParts`） |
 | `tb.Button` / `tb.Toggle` / `tb.RadioItem` | 工具栏内的可聚焦按钮、开关按钮与单选项 |
+| `behaviors.NavList(c, &selected, count, opts)` | 无样式 `RoleTabList` + `RoleTab` 侧栏/标签导航（支持方向键 / RTL / Home / End / 输入态避让） |
+| `behaviors.RadioGroup(c, opts)` / `rg.Item(...)` | 无样式 `RoleRadioGroup` + `FocusGroup` + `RoleRadio` 自定义单选组（色块/卡片） |
 | `behaviors.PlaceFloating(viewport, anchor, size, opts)` | 浮动面板定位、溢出翻转、内回退与 RTL 镜像 |
 | `behaviors.ShouldDismiss(c, surface, opts)` | `Escape` 与 `PressedOutside` 轻关闭判定 |
 
@@ -74,7 +78,7 @@ Go 即时模式行为原语 · 零额外运行时依赖 · 公开 API 零侵入 
 
 1. 在你的 MyGo 项目中安装依赖：
    ```sh
-   go get github.com/Lumiaqian/mygo-ui-sdk@v0.1.0
+   go get github.com/Lumiaqian/mygo-ui-sdk@v0.1.1
    ```
 2. 在自定义控件中组合行为，并在 `go test` 里执行 Agent 可达性检查（完整示例见 [`examples/demo/main_test.go`](examples/demo/main_test.go)）：
    ```go

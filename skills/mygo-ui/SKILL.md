@@ -8,7 +8,7 @@ description: Builds accessible, keyboard-navigable, agent-ready Native GPU inter
 `github.com/egoist/mygo/ui` is an immediate-mode GPU UI toolkit in Go (`func(c *ui.Context)`). It already ships 18+ headless `*Base` controls (`ButtonBase`, `SwitchBase`, `SegmentedBase`, `SelectBase`, `TabsBase`, `MenuBase`, `DialogBase`, etc.), a full accessibility tree, and windowless `ui.Tester`.
 
 `mygo-ui-sdk` adds the missing layers for AI agents and custom-styled controls (such as Liquid Glass or floating canvas toolbars):
-- `behaviors`: composable immediate-mode interaction behaviors (`TrackDrag`, `SwitchTrack`, `SegmentedTrack`, `SegmentedGroup`, `Toolbar`, `PlaceFloating`, `ShouldDismiss`).
+- `behaviors`: composable immediate-mode interaction behaviors (`TrackDrag`, `SwitchTrack`, `SegmentedTrack`, `SegmentedGroup`, `Toolbar`, `NavList`, `RadioGroup`, `PlaceFloating`, `ShouldDismiss`).
 - `uitest`: automated accessibility, keyboard, direction (LTR/RTL), theme, and agent-readiness audits over `ui.Tester`.
 
 ## Read first (progressive disclosure)
