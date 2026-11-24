@@ -7,10 +7,12 @@
 [![Go](https://img.shields.io/badge/Go-1.27.4-00ADD8?style=flat-square)](#-快速开始)
 [![MyGo](https://img.shields.io/badge/MyGo-v0.10.0-0A84FF?style=flat-square)](#-项目架构)
 [![License](https://img.shields.io/badge/License-MIT-10B981?style=flat-square)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/Lumiaqian/mygo-ui-sdk/ci.yml?branch=main&style=flat-square&label=CI)](.github/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Lumiaqian/mygo-ui-sdk?style=flat-square&label=Release)](https://github.com/Lumiaqian/mygo-ui-sdk/releases)
 
 Go 即时模式行为原语 · 零额外运行时依赖 · 公开 API 零侵入 · `ui.Tester` Agent 体检 · 随仓库分发 Skill
 
-[核心功能](#-核心功能一览) · [API 速查](#-api-速查) · [快速开始](#-快速开始) · [项目架构](#-项目架构) · [本地开发](#-本地开发)
+[核心功能](#-核心功能一览) · [API 速查](#-api-速查) · [快速开始](#-快速开始) · [项目架构](#-项目架构) · [本地开发与 CI](#-本地开发与持续集成)
 
 </div>
 
@@ -111,15 +113,19 @@ Go 即时模式行为原语 · 零额外运行时依赖 · 公开 API 零侵入 
 
 ---
 
-## 🛠 本地开发
+## 🛠 本地开发与持续集成
 
+### 本地常用命令
 ```sh
 # 1. 整理依赖
 go mod tidy
 
-# 2. 运行全部包与示例测试
-go test -v ./...
+# 2. 运行全部包与示例测试（含竞态检测）
+go test -race -count=1 ./...
 
 # 3. 静态检查
 go vet ./...
 ```
+
+### GitHub Actions 流水线
+- **持续集成（`.github/workflows/ci.yml`）**：在推送到 `main` 或发起针对 `main` 的 Pull Request 时，于 `ubuntu-latest` 与 `macos-latest` 矩阵运行 `go vet ./...` 与 `go test -race -count=1 ./...`。
