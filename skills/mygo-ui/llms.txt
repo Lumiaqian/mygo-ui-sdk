@@ -7,6 +7,7 @@ Index of guides for building accessible, agent-ready Go Native UI on github.com/
 - references/behaviors.md — API guide for behaviors: TrackDrag, SwitchTrack, SegmentedTrack, SegmentedGroup, Toolbar, NavList, RadioGroup, PlaceFloating, ShouldDismiss.
 - references/state-and-keys.md — Immediate-mode rules: Context.Key, ui.Local + io.Closer, Handle, FocusBind, and animation frame scheduling.
 - references/testing-and-a11y.md — Testing with ui.Tester and uitest (Audit, AssertAgentReady, AssertThemeParity, AssertDirectionParity, AssertRovingFocus).
+- references/localization-and-menus.md — Avoiding mixed-language menus and native dialogs in non-English MyGo apps (locales import, SetLanguages, Info.plist, WhenReady SetMenu).
 
 ## Go packages
 - github.com/Lumiaqian/mygo-ui-sdk/behaviors — Composable immediate-mode interaction behaviors.

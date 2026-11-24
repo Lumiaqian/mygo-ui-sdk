@@ -18,6 +18,7 @@ Read [`llms.txt`](llms.txt) first, then open only the reference file your task n
 - Building custom draggable / floating / toolbar controls → [`references/behaviors.md`](references/behaviors.md)
 - Managing frame state, `Context.Key`, `ui.Local`, and focus → [`references/state-and-keys.md`](references/state-and-keys.md)
 - Writing `ui.Tester` and `uitest.AssertAgentReady` tests → [`references/testing-and-a11y.md`](references/testing-and-a11y.md)
+- Localizing native menus, updater UI, and macOS dialogs → [`references/localization-and-menus.md`](references/localization-and-menus.md)
 
 ## Non-negotiable rules
 
