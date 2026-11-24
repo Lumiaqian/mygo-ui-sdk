@@ -256,3 +256,142 @@ func TestShouldDismissEscapeAndOutside(t *testing.T) {
 		t.Fatalf("Outside dismiss: open=%v reason=%v", open, reason)
 	}
 }
+
+func TestNavListVerticalHorizontalRTLAndTypingGuard(t *testing.T) {
+	selected := 0
+	labels := []string{"Library", "Playlist", "Settings"}
+	query := ""
+
+	tester := ui.NewTester(func(c *ui.Context) {
+		ui.Row(c).Gap(12).Children(func() {
+			nav := behaviors.NavList(c.Key("nav"), &selected, len(labels), behaviors.NavListOptions{
+				Label: "Sections",
+			})
+			nav.Root.Gap(4).Children(func() {
+				for i, lb := range labels {
+					nav.Item(c.Key(lb), i, lb).Size(100, 28).Children(func() {
+						ui.Text(c, lb)
+					})
+				}
+			})
+			ui.TextInput(c.Key("search"), &query).Width(120).Label("Search")
+		})
+	}, 400, 160)
+
+	uitest.AssertAgentReady(t, tester, uitest.AuditOptions{
+		RequiredLabels:      []string{"Sections"},
+		RequiredInteractive: []string{"Library", "Playlist", "Settings", "Search"},
+		RequireFocusable:    true,
+	})
+	uitest.AssertThemeParity(t, tester, uitest.AuditOptions{RequireFocusable: true})
+
+	if info, ok := tester.Access("Sections"); !ok || info.Role != ui.RoleTabList {
+		t.Fatalf("Sections info=%+v ok=%v, want RoleTabList", info, ok)
+	}
+	if info, ok := tester.Access("Library"); !ok || info.Role != ui.RoleTab || !info.Selected {
+		t.Fatalf("Library info=%+v ok=%v, want selected RoleTab", info, ok)
+	}
+
+	if err := tester.Click("Settings"); err != nil {
+		t.Fatalf("click Settings: %v", err)
+	}
+	if selected != 2 {
+		t.Fatalf("after click Settings: selected=%d, want 2", selected)
+	}
+	tester.Key(0, ui.KeyDown) // clamped at end
+	if selected != 2 {
+		t.Fatalf("KeyDown at end: selected=%d, want 2", selected)
+	}
+	tester.Key(0, ui.KeyHome)
+	if selected != 0 {
+		t.Fatalf("KeyHome: selected=%d, want 0", selected)
+	}
+	tester.Key(0, ui.KeyEnd)
+	if selected != 2 {
+		t.Fatalf("KeyEnd: selected=%d, want 2", selected)
+	}
+
+	// Typing in a text input suppresses NavList arrow navigation.
+	if err := tester.Click("Search"); err != nil {
+		t.Fatalf("click Search: %v", err)
+	}
+	tester.Key(0, ui.KeyUp)
+	if selected != 2 {
+		t.Fatalf("KeyUp while typing changed selected to %d", selected)
+	}
+
+	// Horizontal RTL mirrors Left/Right.
+	hSel := 0
+	hTester := ui.NewTester(func(c *ui.Context) {
+		nav := behaviors.NavList(c.Key("hnav"), &hSel, len(labels), behaviors.NavListOptions{
+			Label:       "Tabs",
+			Orientation: ui.Horizontal,
+		})
+		nav.Root.Gap(4).Children(func() {
+			for i, lb := range labels {
+				nav.Item(c.Key(lb), i, lb).Size(80, 28)
+			}
+		})
+	}, 360, 80)
+	hTester.SetDirection(ui.RightToLeft)
+	hTester.Frame()
+	hTester.Key(0, ui.KeyTab)
+	hTester.Key(0, ui.KeyLeft)
+	if hSel != 1 {
+		t.Fatalf("RTL KeyLeft: hSel=%d, want 1", hSel)
+	}
+	hTester.Key(0, ui.KeyRight)
+	if hSel != 0 {
+		t.Fatalf("RTL KeyRight: hSel=%d, want 0", hSel)
+	}
+}
+
+func TestRadioGroupRovingFocusAndSelection(t *testing.T) {
+	chosen := "Blue"
+	choices := []string{"Auto", "Blue", "Purple"}
+
+	tester := ui.NewTester(func(c *ui.Context) {
+		rg := behaviors.RadioGroup(c.Key("accent"), behaviors.RadioGroupOptions{
+			Label: "Accent Color",
+		})
+		rg.Root.Gap(6).Children(func() {
+			for _, name := range choices {
+				if rg.Item(c.Key(name), name, chosen == name, behaviors.RadioItemOptions{
+					Tooltip: name,
+				}).Size(48, 24).Clicked() {
+					chosen = name
+				}
+			}
+		})
+	}, 360, 80)
+
+	uitest.AssertAgentReady(t, tester, uitest.AuditOptions{
+		RequiredLabels:      []string{"Accent Color"},
+		RequiredInteractive: choices,
+		RequireFocusable:    true,
+	})
+	uitest.AssertThemeParity(t, tester, uitest.AuditOptions{RequireFocusable: true})
+	uitest.AssertDirectionParity(t, tester, uitest.AuditOptions{RequireFocusable: true})
+
+	if info, ok := tester.Access("Accent Color"); !ok || info.Role != ui.RoleRadioGroup {
+		t.Fatalf("Accent Color info=%+v ok=%v, want RoleRadioGroup", info, ok)
+	}
+
+	// Tab lands on checked radio ("Blue"); Home jumps to first item and roving traverses all.
+	tester.Key(0, ui.KeyTab)
+	if !tester.Focused("Blue") {
+		t.Fatalf("expected Tab to land on checked radio Blue")
+	}
+	tester.Key(0, ui.KeyHome)
+	uitest.AssertRovingFocus(t, tester, ui.Horizontal, choices)
+
+	if err := tester.Click("Purple"); err != nil {
+		t.Fatalf("click Purple: %v", err)
+	}
+	if chosen != "Purple" {
+		t.Fatalf("chosen=%q, want Purple", chosen)
+	}
+	if info, ok := tester.Access("Purple"); !ok || info.Role != ui.RoleRadio || !info.Checked {
+		t.Fatalf("Purple info=%+v ok=%v, want checked RoleRadio", info, ok)
+	}
+}
