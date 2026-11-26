@@ -158,10 +158,14 @@ func Audit(t *ui.Tester, opts AuditOptions) []Finding {
 		}
 
 		if name == "" && !slices.Contains(opts.IgnoreUnnamedRoles, n.Role) {
+			hint := "set Label(...) or inner text"
+			if n.Role == ui.RoleTextField {
+				hint = "set Label(...) on the text field itself"
+			}
 			findings = append(findings, Finding{
 				Kind:   FindingUnnamedControl,
 				Role:   n.Role,
-				Detail: fmt.Sprintf("focusable=%v bounds=%v has no accessible name; set Label(...) or inner text", n.Focusable, n.Bounds),
+				Detail: fmt.Sprintf("focusable=%v bounds=%v has no accessible name; %s", n.Focusable, n.Bounds, hint),
 			})
 		}
 

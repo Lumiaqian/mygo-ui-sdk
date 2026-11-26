@@ -29,3 +29,21 @@ uitest.AssertDirectionParity(t, tester, opts)
 - `uitest.AssertKeyboardTabOrder(t, tester, []string{"First", "Second"})` checks sequential `Tab` order.
 - `uitest.AssertRovingFocus(t, tester, ui.Horizontal, []string{"A", "B", "C"})` checks arrow keys, wrap-around, `Home`, and `End` inside a `FocusGroup`.
 - Use `uitest.Snapshot(tester)` in failure logs to inspect every visible accessible node's `Role`, `Name`, `Value`, `Checked`, `Focusable`, and `Bounds`.
+
+## 4. Editable fields, shortcuts and clipboard side effects
+
+Give the editable element its own accessible name, for example
+`ui.TextInput(c, &draft).Label("Annotation")`. A populated value can still
+belong to an unnamed field. Audit the frame with the editor open.
+
+Guard window shortcuts with `!c.FocusTakesText()` before calling
+`c.Shortcut(...)`. Exercise the same key with the field unfocused and
+focused. Use `tester.TypeKey(0, ui.Key1, "1")` to check both the resulting
+text and the absence of a tool change.
+
+For view-local text copies, use `c.Services().WriteClipboard(text)` and
+assert `tester.Clipboard()`. For application code using native clipboard
+APIs, inject a copy callback and capture its argument in the test.
+`ui.NewTester` supplies a headless host. An off-main-thread
+`mygo.RunOnMain` waits for the native event loop, so exercise that path in
+a native integration test with a running loop.
